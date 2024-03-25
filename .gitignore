@@ -61,5 +61,8 @@ video/
 video_note/
 
 #Alternate configs
-config-*
+config-*.yaml
+config.*.yaml
 YT
+*1.py
+
