@@ -91,6 +91,7 @@ def _is_exist(file_path: str) -> bool:
 
 
 async def _get_media_meta(
+    config: dict,
     media_obj: Union[Audio, Document, Photo, Video, VideoNote, Voice],
     _type: str,
 ) -> Tuple[str, Optional[str]]:
@@ -140,6 +141,7 @@ async def _get_media_meta(
 
 
 async def download_media(
+    config: dict,
     client: pyrogram.client.Client,
     message: pyrogram.types.Message,
     media_types: List[str],
@@ -184,7 +186,7 @@ async def download_media(
                 _media = getattr(message, _type, None)
                 if _media is None:
                     continue
-                file_name, file_format = await _get_media_meta(_media, _type)
+                file_name, file_format = await _get_media_meta(config, _media, _type)
                 if _can_download(_type, file_formats, file_format):
                     if _is_exist(file_name):
                         file_name = get_next_name(file_name)
@@ -244,6 +246,7 @@ async def download_media(
 
 
 async def process_messages(
+    config: dict,
     client: pyrogram.client.Client,
     messages: List[pyrogram.types.Message],
     media_types: List[str],
@@ -279,7 +282,7 @@ async def process_messages(
     """
     message_ids = await asyncio.gather(
         *[
-            download_media(client, message, media_types, file_formats)
+            download_media(config, client, message, media_types, file_formats)
             for message in messages
         ]
     )
@@ -336,6 +339,7 @@ async def begin_import(config: dict, pagination_limit: int) -> dict:
             messages_list.append(message)
         else:
             last_read_message_id = await process_messages(
+                config,
                 client,
                 messages_list,
                 config["media_types"],
@@ -348,6 +352,7 @@ async def begin_import(config: dict, pagination_limit: int) -> dict:
             update_config(config)
     if messages_list:
         last_read_message_id = await process_messages(
+            config,
             client,
             messages_list,
             config["media_types"],
