@@ -25,6 +25,10 @@ logging.getLogger("pyrogram.client").addFilter(LogFilter())
 logger = logging.getLogger("media_downloader")
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+if config["download_directory"] not in ['default', None]:
+    DL_DIR = os.path.dirname(config["download_directory"])
+else:
+    DL_DIR = THIS_DIR
 FAILED_IDS: list = []
 DOWNLOADED_IDS: list = []
 
@@ -128,7 +132,7 @@ async def _get_media_meta(
         )
     else:
         file_name = os.path.join(
-            THIS_DIR, _type, getattr(media_obj, "file_name", None) or ""
+            DL_DIR, _type, getattr(media_obj, "file_name", None) or ""
         )
     return file_name, file_format
 
